@@ -44,6 +44,20 @@ En Render Dashboard crear un **Web Service** conectado al repo de GitHub.
 
 Render define `PORT` automáticamente, por eso no hace falta configurarlo en producción.
 
+### Pasos rápidos en Render Dashboard
+
+1. Ir a **New +** y elegir **Web Service**.
+2. Conectar el repo `German-cc/Colegio`.
+3. Elegir rama `main`.
+4. En **Build Command** poner `npm install`.
+5. En **Start Command** poner `npm start`.
+6. En **Environment Variables** agregar:
+   - Key: `GEMINI_API_KEY` / Value: tu clave real de Google AI Studio.
+   - Key: `GEMINI_MODEL` / Value: `gemini-2.5-flash`.
+7. Hacer click en **Deploy Web Service**.
+
+Para grabar un video, podés mostrar `.env.video.example`; no contiene una clave real.
+
 ## Seguridad
 
 No subir `.env` a GitHub. El archivo está ignorado por Git y la API key debe cargarse como variable de entorno en Render.
