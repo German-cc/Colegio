@@ -1,0 +1,21 @@
+{
+  "name": "raeebot",
+  "version": "1.0.0",
+  "description": "RAEEBot para el Punto Verde de Parque Saavedra",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch-path=server --watch-path=public server/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "multer": "^2.1.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

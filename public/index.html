@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAEEBot | Punto Verde Parque Saavedra</title>
+    <meta name="description" content="Asistente IA para identificar RAEE y arte reciclado en el Punto Verde de Parque Saavedra." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <button id="fullscreen-hotspot" class="fullscreen-hotspot" type="button" aria-label="Activar pantalla completa"></button>
+    <main class="phone-stage">
+      <header class="topbar">
+        <a class="logo-lockup" href="/" aria-label="RAEEBot">
+          <span class="logo-spark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+          <span>
+            <strong>RAEEBot</strong>
+            <small>GCBA · IA ambiental</small>
+          </span>
+        </a>
+        <span class="place-badge">Punto Verde · Parque Saavedra</span>
+      </header>
+
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="kicker">Escaneo RAEE en segundos</p>
+          <h1 id="hero-title">Subí o describí. RAEEBot analiza.</h1>
+          <p>
+            Identificá residuos electrónicos u obras hechas con descarte tech y recibí una ficha clara para reciclar mejor.
+          </p>
+        </div>
+        <div class="signal-card" aria-hidden="true">
+          <div class="signal-screen">
+            <svg viewBox="0 0 160 160">
+              <path d="M34 48h92v57H34z" />
+              <path d="M58 120h44M72 105v15h16v-15" />
+              <circle cx="61" cy="74" r="6" />
+              <circle cx="96" cy="74" r="6" />
+              <path d="M61 91c12 9 27 9 39 0" />
+              <path d="M29 37c28-26 76-27 104 0M18 25c36-36 96-36 132 0" />
+            </svg>
+          </div>
+          <span>RAEE</span>
+        </div>
+      </section>
+
+      <section class="upload-panel" aria-labelledby="upload-title">
+        <div class="section-heading">
+          <h2 id="upload-title">Analizar objeto</h2>
+          <span id="upload-status" role="status" aria-live="polite">Listo para escanear</span>
+        </div>
+
+        <form id="upload-form" class="dropzone">
+          <input id="image-input" type="file" name="image" accept="image/*" capture="environment" />
+          <div class="dropzone-art" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M14 18.5A5.5 5.5 0 0 1 19.5 13H24l2.8-4h6.4l2.8 4h4.5A5.5 5.5 0 0 1 46 18.5v16A5.5 5.5 0 0 1 40.5 40h-21A5.5 5.5 0 0 1 14 34.5v-16Z" />
+              <circle cx="30" cy="26.5" r="7" />
+              <path d="M7 16v23h23" />
+            </svg>
+          </div>
+          <div>
+            <p>Arrastrá una foto o tocá para abrir la cámara</p>
+            <span>JPG, PNG o HEIC · máximo 6 MB</span>
+          </div>
+        </form>
+
+        <figure id="preview-card" class="preview-card" hidden>
+          <img id="preview-image" alt="Vista previa de la imagen seleccionada" />
+          <figcaption>
+            <strong id="preview-name">Imagen lista</strong>
+            <button id="clear-button" type="button">Cambiar</button>
+          </figcaption>
+        </figure>
+
+        <label class="description-field" for="description-input">
+          <span>También podés describirlo</span>
+          <textarea id="description-input" name="description" rows="3" placeholder="Ej: monitor de tubo viejo, teclado roto, escultura hecha con cables y placas..."></textarea>
+        </label>
+
+        <button id="analyze-button" class="primary-action" type="button" disabled>
+          <span>Procesar ficha técnica</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </button>
+      </section>
+
+      <section id="loading-panel" class="loading-panel" aria-label="Procesando imagen" hidden>
+        <div class="skeleton title"></div>
+        <div class="skeleton line"></div>
+        <div class="skeleton chips"></div>
+        <div class="skeleton block"></div>
+      </section>
+
+      <section id="results-panel" class="results-panel" hidden>
+        <article class="result-hero">
+          <div>
+            <span id="category-label" class="category-label">Residuo electrónico</span>
+            <h2 id="object-title">Monitor CRT</h2>
+            <p id="hero-stat">Hasta 2 kg de vidrio recuperable</p>
+          </div>
+          <strong id="confidence-score">91%</strong>
+        </article>
+
+        <div class="key-grid">
+          <div class="key-card">
+            <span>Año estimado</span>
+            <strong id="object-year">1998-2004</strong>
+          </div>
+          <div class="key-card">
+            <span>Marca y modelo</span>
+            <strong id="brand-model">No identificable</strong>
+          </div>
+        </div>
+
+        <section class="materials-card" aria-labelledby="materials-title">
+          <h3 id="materials-title">Materiales predominantes</h3>
+          <div id="materials-list" class="materials-list"></div>
+        </section>
+
+        <aside class="impact-card" aria-label="Impacto ambiental">
+          <strong>Impacto ambiental</strong>
+          <p id="impact-copy"></p>
+        </aside>
+
+        <section class="tabs-card" aria-labelledby="tabs-title">
+          <h3 id="tabs-title">Ficha interactiva</h3>
+          <div class="tab-list" role="tablist" aria-label="Secciones de la ficha técnica">
+            <button class="tab-button is-active" type="button" role="tab" aria-selected="true" data-tab="history">Historia</button>
+            <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="hazards">Componentes peligrosos</button>
+            <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="recycling">Destino reciclado</button>
+          </div>
+          <div id="tab-content" class="tab-content"></div>
+        </section>
+
+        <section class="curiosity-card" aria-labelledby="curiosity-title">
+          <h3 id="curiosity-title">Dato curioso</h3>
+          <p id="curiosity-copy"></p>
+        </section>
+
+        <section class="tips-card" aria-labelledby="tips-title">
+          <h3 id="tips-title">Tips en el Punto Verde</h3>
+          <ul id="tips-list"></ul>
+        </section>
+      </section>
+
+      <footer class="site-footer">
+        <p>Gobierno de la Ciudad de Buenos Aires · Punto Verde Parque Saavedra</p>
+        <button id="reset-button" type="button">Escanear otro objeto</button>
+      </footer>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
