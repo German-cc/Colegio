@@ -70,15 +70,7 @@ export async function analyzeRaee({ file, description, apiKey: requestApiKey }) 
   const ai = new GoogleGenAI({ apiKey });
   const contents = buildGeminiContents({ file, description });
 
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema,
-      temperature: 0.35,
-    },
-  });
+  const response = await generateGeminiContent(ai, contents);
 
   const analysis = parseGeminiJson(response.text);
 
@@ -88,6 +80,46 @@ export async function analyzeRaee({ file, description, apiKey: requestApiKey }) 
     description,
     model: MODEL,
   });
+}
+
+async function generateGeminiContent(ai, contents) {
+  try {
+    return await ai.models.generateContent({
+      model: MODEL,
+      contents,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema,
+        temperature: 0.35,
+      },
+    });
+  } catch (error) {
+    throw mapGeminiError(error);
+  }
+}
+
+function mapGeminiError(error) {
+  const message = String(error?.message || "");
+  const status = Number(error?.status || error?.code || 502);
+
+  if (status === 403 && message.includes("reported as leaked")) {
+    const mapped = new Error("Esa API key fue marcada como filtrada por Google. Creá una nueva en Google AI Studio y pegala acá.");
+    mapped.status = 403;
+    mapped.code = "GEMINI_KEY_LEAKED";
+    return mapped;
+  }
+
+  if (status === 403) {
+    const mapped = new Error("Gemini rechazó la API key. Revisá que sea válida, nueva y que tenga permisos.");
+    mapped.status = 403;
+    mapped.code = "GEMINI_PERMISSION_DENIED";
+    return mapped;
+  }
+
+  const mapped = new Error("Gemini no pudo procesar la solicitud en este momento.");
+  mapped.status = status >= 400 && status < 600 ? status : 502;
+  mapped.code = "GEMINI_REQUEST_FAILED";
+  return mapped;
 }
 
 function buildGeminiContents({ file, description }) {

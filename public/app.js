@@ -36,36 +36,36 @@ let currentAnalysis = null;
 let previewUrl = null;
 let geminiApiKey = sessionStorage.getItem("raeebot_gemini_api_key") || "";
 
-apiKeyForm.addEventListener("submit", saveApiKey);
-changeApiKeyButton.addEventListener("click", showApiKeyGate);
-fullscreenHotspot.addEventListener("click", toggleFullscreen);
-dropzone.addEventListener("click", () => imageInput.click());
+apiKeyForm?.addEventListener("submit", saveApiKey);
+changeApiKeyButton?.addEventListener("click", showApiKeyGate);
+fullscreenHotspot?.addEventListener("click", toggleFullscreen);
+dropzone?.addEventListener("click", () => imageInput.click());
 
-dropzone.addEventListener("dragover", (event) => {
+dropzone?.addEventListener("dragover", (event) => {
   event.preventDefault();
   dropzone.classList.add("is-dragover");
 });
 
-dropzone.addEventListener("dragleave", () => {
+dropzone?.addEventListener("dragleave", () => {
   dropzone.classList.remove("is-dragover");
 });
 
-dropzone.addEventListener("drop", (event) => {
+dropzone?.addEventListener("drop", (event) => {
   event.preventDefault();
   dropzone.classList.remove("is-dragover");
   const [file] = event.dataTransfer.files;
   handleFile(file);
 });
 
-imageInput.addEventListener("change", () => {
+imageInput?.addEventListener("change", () => {
   const [file] = imageInput.files;
   handleFile(file);
 });
 
-descriptionInput.addEventListener("input", syncAnalyzeState);
-analyzeButton.addEventListener("click", analyzeSelectedImage);
-clearButton.addEventListener("click", clearSelection);
-resetButton.addEventListener("click", resetExperience);
+descriptionInput?.addEventListener("input", syncAnalyzeState);
+analyzeButton?.addEventListener("click", analyzeSelectedImage);
+clearButton?.addEventListener("click", clearSelection);
+resetButton?.addEventListener("click", resetExperience);
 
 document.querySelectorAll(".tab-button").forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
@@ -118,13 +118,19 @@ async function analyzeSelectedImage() {
 
     const payload = await parseJsonResponse(response);
     if (!response.ok || !payload.ok) {
-      throw new Error(payload.error?.message || "No se pudo analizar la imagen.");
+      const apiError = new Error(payload.error?.message || "No se pudo analizar la imagen.");
+      apiError.code = payload.error?.code;
+      throw apiError;
     }
 
     currentAnalysis = payload.data;
     renderAnalysis(currentAnalysis);
     setStatus("Ficha generada");
   } catch (error) {
+    if (error.code === "GEMINI_KEY_LEAKED" || error.code === "GEMINI_PERMISSION_DENIED") {
+      forgetApiKey();
+      showApiKeyGate();
+    }
     setStatus(error.message, true);
   } finally {
     setProcessing(false);
@@ -299,6 +305,16 @@ function saveApiKey(event) {
 }
 
 function showApiKeyGate() {
+  if (!apiKeyGate || !apiKeyInput) {
+    const value = window.prompt("Pegá tu API key de Gemini para empezar:");
+    if (value) {
+      geminiApiKey = value.trim();
+      sessionStorage.setItem("raeebot_gemini_api_key", geminiApiKey);
+      syncAnalyzeState();
+    }
+    return;
+  }
+
   apiKeyGate.hidden = false;
   requestAnimationFrame(() => {
     apiKeyInput.focus();
@@ -306,5 +322,12 @@ function showApiKeyGate() {
 }
 
 function hideApiKeyGate() {
+  if (!apiKeyGate) return;
   apiKeyGate.hidden = true;
+}
+
+function forgetApiKey() {
+  geminiApiKey = "";
+  sessionStorage.removeItem("raeebot_gemini_api_key");
+  syncAnalyzeState();
 }
