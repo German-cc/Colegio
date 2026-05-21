@@ -17,7 +17,7 @@ cp .env.example .env
 npm start
 ```
 
-Configurar `.env`:
+Configurar `.env` es opcional. La app también puede pedir la API key al entrar y guardarla solo en la sesión del navegador.
 
 ```bash
 GEMINI_API_KEY=tu_api_key_de_google_ai_studio
@@ -39,10 +39,10 @@ En Render Dashboard crear un **Web Service** conectado al repo de GitHub.
 - Start Command: `npm start`
 - Environment: `Node`
 - Environment Variables:
-  - `GEMINI_API_KEY`: tu API key real
   - `GEMINI_MODEL`: `gemini-2.5-flash`
 
 Render define `PORT` automáticamente, por eso no hace falta configurarlo en producción.
+La API key puede pegarse desde la pantalla inicial de la app cuando se abre la página.
 
 ### Pasos rápidos en Render Dashboard
 
@@ -52,12 +52,12 @@ Render define `PORT` automáticamente, por eso no hace falta configurarlo en pro
 4. En **Build Command** poner `npm install`.
 5. En **Start Command** poner `npm start`.
 6. En **Environment Variables** agregar:
-   - Key: `GEMINI_API_KEY` / Value: tu clave real de Google AI Studio.
    - Key: `GEMINI_MODEL` / Value: `gemini-2.5-flash`.
 7. Hacer click en **Deploy Web Service**.
+8. Al abrir la web publicada, pegar la API key en el panel inicial.
 
 Para grabar un video, podés mostrar `.env.video.example`; no contiene una clave real.
 
 ## Seguridad
 
-No subir `.env` a GitHub. El archivo está ignorado por Git y la API key debe cargarse como variable de entorno en Render.
+No subir `.env` a GitHub. El archivo está ignorado por Git. Si la API key se carga desde la pantalla inicial, queda en `sessionStorage` del navegador y no se persiste en el servidor.

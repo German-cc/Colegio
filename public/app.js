@@ -1,5 +1,10 @@
 const dropzone = document.querySelector("#upload-form");
 const fullscreenHotspot = document.querySelector("#fullscreen-hotspot");
+const apiKeyGate = document.querySelector("#api-key-gate");
+const apiKeyForm = document.querySelector("#api-key-form");
+const apiKeyInput = document.querySelector("#api-key-input");
+const apiKeyError = document.querySelector("#api-key-error");
+const changeApiKeyButton = document.querySelector("#change-api-key");
 const imageInput = document.querySelector("#image-input");
 const descriptionInput = document.querySelector("#description-input");
 const analyzeButton = document.querySelector("#analyze-button");
@@ -29,7 +34,10 @@ const fields = {
 let selectedFile = null;
 let currentAnalysis = null;
 let previewUrl = null;
+let geminiApiKey = sessionStorage.getItem("raeebot_gemini_api_key") || "";
 
+apiKeyForm.addEventListener("submit", saveApiKey);
+changeApiKeyButton.addEventListener("click", showApiKeyGate);
 fullscreenHotspot.addEventListener("click", toggleFullscreen);
 dropzone.addEventListener("click", () => imageInput.click());
 
@@ -62,6 +70,8 @@ resetButton.addEventListener("click", resetExperience);
 document.querySelectorAll(".tab-button").forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tab));
 });
+
+initApiKeyGate();
 
 function handleFile(file) {
   if (!file) return;
@@ -100,10 +110,13 @@ async function analyzeSelectedImage() {
   try {
     const response = await fetch("/api/analyze-image", {
       method: "POST",
+      headers: {
+        "X-Gemini-API-Key": geminiApiKey,
+      },
       body: formData,
     });
 
-    const payload = await response.json();
+    const payload = await parseJsonResponse(response);
     if (!response.ok || !payload.ok) {
       throw new Error(payload.error?.message || "No se pudo analizar la imagen.");
     }
@@ -221,7 +234,7 @@ function resetExperience() {
 }
 
 function syncAnalyzeState() {
-  analyzeButton.disabled = !selectedFile && !descriptionInput.value.trim();
+  analyzeButton.disabled = !geminiApiKey || (!selectedFile && !descriptionInput.value.trim());
 }
 
 async function toggleFullscreen() {
@@ -235,4 +248,63 @@ async function toggleFullscreen() {
   } catch (_error) {
     setStatus("Pantalla completa no disponible en este navegador.", true);
   }
+}
+
+async function parseJsonResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  const isHtml = text.trim().startsWith("<!DOCTYPE") || text.trim().startsWith("<html");
+
+  if (isHtml) {
+    throw new Error(
+      "El servidor devolvió una página HTML en vez de JSON. En Render, publicalo como Web Service, no como Static Site."
+    );
+  }
+
+  throw new Error(text || "El servidor devolvió una respuesta inesperada.");
+}
+
+function initApiKeyGate() {
+  if (geminiApiKey) {
+    hideApiKeyGate();
+    syncAnalyzeState();
+    return;
+  }
+
+  showApiKeyGate();
+  syncAnalyzeState();
+}
+
+function saveApiKey(event) {
+  event.preventDefault();
+  const value = apiKeyInput.value.trim();
+
+  if (value.length < 20) {
+    apiKeyError.textContent = "Pegá una API key válida de Gemini.";
+    return;
+  }
+
+  geminiApiKey = value;
+  sessionStorage.setItem("raeebot_gemini_api_key", value);
+  apiKeyInput.value = "";
+  apiKeyError.textContent = "";
+  hideApiKeyGate();
+  setStatus("API key lista. Ya podés analizar.", false);
+  syncAnalyzeState();
+}
+
+function showApiKeyGate() {
+  apiKeyGate.hidden = false;
+  requestAnimationFrame(() => {
+    apiKeyInput.focus();
+  });
+}
+
+function hideApiKeyGate() {
+  apiKeyGate.hidden = true;
 }

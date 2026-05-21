@@ -23,6 +23,7 @@ const upload = multer({
 router.post("/analyze-image", upload.single("image"), async (req, res, next) => {
   try {
     const description = normalizeDescription(req.body?.description);
+    const apiKey = normalizeApiKey(req.get("x-gemini-api-key"));
 
     if (!req.file && !description) {
       const error = new Error("Subí una imagen o escribí una descripción para analizar.");
@@ -40,6 +41,7 @@ router.post("/analyze-image", upload.single("image"), async (req, res, next) => 
           }
         : null,
       description,
+      apiKey,
     });
 
     res.status(200).json({
@@ -54,6 +56,11 @@ router.post("/analyze-image", upload.single("image"), async (req, res, next) => 
 function normalizeDescription(value) {
   if (typeof value !== "string") return "";
   return value.trim().slice(0, 1200);
+}
+
+function normalizeApiKey(value) {
+  if (typeof value !== "string") return "";
+  return value.trim();
 }
 
 export default router;

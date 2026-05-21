@@ -58,10 +58,10 @@ const responseSchema = {
   ],
 };
 
-export async function analyzeRaee({ file, description }) {
-  const apiKey = process.env.GEMINI_API_KEY;
+export async function analyzeRaee({ file, description, apiKey: requestApiKey }) {
+  const apiKey = requestApiKey || process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    const error = new Error("Falta configurar GEMINI_API_KEY en el servidor.");
+    const error = new Error("Pegá tu API key de Gemini para analizar el objeto.");
     error.status = 503;
     error.code = "GEMINI_API_KEY_MISSING";
     throw error;

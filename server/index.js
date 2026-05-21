@@ -19,10 +19,10 @@ app.use(
   cors({
     origin: process.env.CORS_ORIGIN || true,
     methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "X-Gemini-API-Key"],
   })
 );
 app.use(express.json({ limit: "256kb" }));
-app.use(express.static(publicDir, { extensions: ["html"] }));
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -33,6 +33,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api", analyzeRouter);
+app.use(express.static(publicDir, { extensions: ["html"] }));
 app.use(notFoundHandler);
 app.use(errorHandler);
 

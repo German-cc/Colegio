@@ -12,6 +12,22 @@
   </head>
   <body>
     <button id="fullscreen-hotspot" class="fullscreen-hotspot" type="button" aria-label="Activar pantalla completa"></button>
+    <section id="api-key-gate" class="api-key-gate" aria-labelledby="api-key-title">
+      <form id="api-key-form" class="api-key-card">
+        <span class="api-key-chip">Configurar Gemini</span>
+        <h2 id="api-key-title">Pegá tu API key para empezar</h2>
+        <p>La clave queda guardada solo en este navegador durante la sesión y se usa para pedirle a Gemini la ficha técnica.</p>
+        <label for="api-key-input">API key de Gemini</label>
+        <input id="api-key-input" type="password" autocomplete="off" placeholder="AIza..." />
+        <button class="primary-action" type="submit">
+          <span>Usar esta clave</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </button>
+        <small id="api-key-error" role="status" aria-live="polite"></small>
+      </form>
+    </section>
     <main class="phone-stage">
       <header class="topbar">
         <a class="logo-lockup" href="/" aria-label="RAEEBot">
@@ -24,6 +40,7 @@
           </span>
         </a>
         <span class="place-badge">Punto Verde · Parque Saavedra</span>
+        <button id="change-api-key" class="key-button" type="button">API key</button>
       </header>
 
       <section class="hero" aria-labelledby="hero-title">
